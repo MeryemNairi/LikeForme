@@ -15,7 +15,7 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
   const [formEntries, setFormEntries] = React.useState<IFormData[]>([]);
 
   React.useEffect(() => {
-    fetchFormData(); //récupère les données initiales
+    fetchFormData(); 
     const interval = setInterval(fetchFormData, 2000); // MAJ les données
 
     return () => clearInterval(interval); // Nettoiage
@@ -77,24 +77,6 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
           </button>
         </div>
       </form>
-
-      <p>Here, it's just to visualize what's happening on the backend</p>
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Likes</th>
-          </tr>
-        </thead>
-        <tbody>
-          {formEntries.map((entry, index) => (
-            <tr key={index}>
-              <td>{entry.user}</td>
-              <td>{entry.likes}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 };
