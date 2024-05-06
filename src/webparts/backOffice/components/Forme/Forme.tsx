@@ -5,24 +5,26 @@ import styles from './Forme.module.scss';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
-
 export const Forme: React.FC<IFormProps> = ({ context }) => {
   const [formData, setFormData] = React.useState<IFormData>({
     id: 0,
     user: context.pageContext.user.displayName,
-    likes: 1, 
+    likes: 1,
   });
 
   const [formEntries, setFormEntries] = React.useState<IFormData[]>([]);
 
   React.useEffect(() => {
-    fetchFormData();
+    fetchFormData(); //récupère les données initiales
+    const interval = setInterval(fetchFormData, 2000); // MAJ les données
+
+    return () => clearInterval(interval); // Nettoiage
   }, []);
 
   const fetchFormData = async () => {
     try {
-      const formData = await getFormData();
-      setFormEntries(formData);
+      const formData = await getFormData(); 
+      setFormEntries(formData); // MAJ
     } catch (error) {
       console.error('Error fetching form data:', error);
     }
@@ -32,7 +34,9 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
     e.preventDefault();
 
     try {
-      const existingEntryIndex = formEntries.findIndex(entry => entry.user === formData.user);
+      const existingEntryIndex = formEntries.findIndex(
+        entry => entry.user === formData.user
+      );
 
       if (existingEntryIndex !== -1) {
         const existingEntry = formEntries[existingEntryIndex];
@@ -43,19 +47,20 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
       } else {
         await submitForm(formData);
       }
-      
+
       setFormData({
         id: 0,
         user: context.pageContext.user.displayName,
         likes: 1,
       });
 
-      fetchFormData();
+      fetchFormData(); // Rafraîchit les données 
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('An error occurred while submitting the form. Please try again.');
     }
   };
+
   const isUserLiked = formEntries.some(entry => entry.user === formData.user);
 
   const totalLikes = formEntries.reduce((total, entry) => total + entry.likes, 0);
@@ -66,10 +71,11 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
         <input type="hidden" id="user" name="user" value={formData.user} />
         <input type="hidden" id="likes" name="likes" value={formData.likes} />
         <div>
-        <button type="submit" className={styles.button} style={{ background: 'transparent', border: 'none', fontSize: '16px', padding: '8px' }}>
+          <button type="submit" className={styles.button} style={{ background: 'transparent', border: 'none', fontSize: '16px', padding: '8px' }}>
             {isUserLiked ? <FavoriteIcon style={{ color: 'red', fontSize: '40px' }} /> : <FavoriteBorderIcon style={{ color: 'white', fontSize: '40px' }} />}
             {totalLikes}
-          </button>      </div>
+          </button>
+        </div>
       </form>
 
       <p>Here, it's just to visualize what's happening on the backend</p>
