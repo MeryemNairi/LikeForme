@@ -5,25 +5,26 @@ import styles from './Forme.module.scss';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
-export const Forme: React.FC<IFormProps> = ({ context }) => {
+export const Forme: React.FC<IFormProps> = ({ context, newsId }) => {
   const [formData, setFormData] = React.useState<IFormData>({
     id: 0,
     user: context.pageContext.user.displayName,
     likes: 1,
+    newsId: newsId // Utilisation de la prop newsId fournie
   });
 
   const [formEntries, setFormEntries] = React.useState<IFormData[]>([]);
 
   React.useEffect(() => {
-    fetchFormData(); 
+    fetchFormData();
     const interval = setInterval(fetchFormData, 2000); // MAJ les données
 
-    return () => clearInterval(interval); // Nettoiage
+    return () => clearInterval(interval); // Nettoyage
   }, []);
 
   const fetchFormData = async () => {
     try {
-      const formData = await getFormData(); 
+      const formData = await getFormData();
       setFormEntries(formData); // MAJ
     } catch (error) {
       console.error('Error fetching form data:', error);
@@ -35,7 +36,7 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
 
     try {
       const existingEntryIndex = formEntries.findIndex(
-        entry => entry.user === formData.user
+        entry => entry.user === formData.user && entry.newsId === formData.newsId // Vérification de la correspondance de l'utilisateur et de newsId
       );
 
       if (existingEntryIndex !== -1) {
@@ -45,23 +46,24 @@ export const Forme: React.FC<IFormProps> = ({ context }) => {
         updatedEntries.splice(existingEntryIndex, 1);
         setFormEntries(updatedEntries);
       } else {
-        await submitForm(formData);
+        await submitForm({ ...formData, newsId: formData.newsId }); // Envoi de formData avec newsId
       }
 
       setFormData({
         id: 0,
         user: context.pageContext.user.displayName,
         likes: 1,
+        newsId: newsId // Utilisation de la prop newsId fournie
       });
 
-      fetchFormData(); // Rafraîchit les données 
+      fetchFormData(); // Rafraîchit les données
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('An error occurred while submitting the form. Please try again.');
     }
   };
 
-  const isUserLiked = formEntries.some(entry => entry.user === formData.user);
+  const isUserLiked = formEntries.some(entry => entry.user === formData.user && entry.newsId === formData.newsId);
 
   const totalLikes = formEntries.reduce((total, entry) => total + entry.likes, 0);
 
